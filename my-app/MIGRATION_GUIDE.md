@@ -18,14 +18,17 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ## Key Changes
 
 ### 1. API Client
+
 - **Old**: Direct Supabase client queries
 - **New**: REST API calls via `apiClient`
 
 ### 2. Data Fetching
+
 - **Old**: `supabase.from('table').select()`
 - **New**: `apiClient.get('/endpoint')`
 
 ### 3. Authentication
+
 - **Old**: Supabase Auth
 - **New**: JWT tokens from Supabase Auth (if needed)
 
@@ -54,4 +57,4 @@ The ts-backend provides these main endpoints:
 - **Centralized business logic** - All data processing in backend
 - **Better security** - Row Level Security handled in backend
 - **Easier testing** - Mock API responses instead of database
-- **Better performance** - Optimized queries in backend 
+- **Better performance** - Optimized queries in backend

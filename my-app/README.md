@@ -36,6 +36,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ## Getting Started
 
 1. **Install dependencies**:
+
    ```bash
    npm install
    ```
@@ -45,6 +46,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
    - Update the API base URL to point to your ts-backend instance
 
 3. **Start the development server**:
+
    ```bash
    npm run dev
    ```
@@ -65,20 +67,26 @@ The dashboard uses these ts-backend API endpoints:
 ## Components
 
 ### SectionCards
+
 Displays key statistics:
+
 - Total Events
 - Total Players
 - Total Teams
 - Average Performance Score
 
 ### ChartAreaInteractive
+
 Shows player performance trends with:
+
 - Interactive metric selection (Points, Assists, Rebounds, etc.)
 - Top 10 players visualization
 - Real-time data updates
 
 ### DataTable
+
 Comprehensive player data table with:
+
 - Sortable columns
 - Search functionality
 - Pagination
