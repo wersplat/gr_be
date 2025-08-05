@@ -6,9 +6,10 @@ export function getEnvVariable(key: string, defaultValue?: string): string {
     if (value) return value
   }
 
-  // Try to get from window (browser)
-  if (typeof window !== 'undefined' && (window as any).env) {
-    const value = (window as any).env[key]
+  // Try to get from window (browser) - simplified approach
+  if (typeof window !== 'undefined') {
+    const windowAny = window as unknown as { env?: Record<string, string> }
+    const value = windowAny.env?.[key]
     if (value) return value
   }
 
@@ -26,7 +27,13 @@ export function getEnvVariable(key: string, defaultValue?: string): string {
   throw new Error(`Missing required environment variable: ${key}`)
 }
 
-// Export environment variables with optional defaults for development
+// API Base URL - points to production ts-backend
+export const API_BASE_URL = getEnvVariable(
+  'NEXT_PUBLIC_API_BASE_URL',
+  process.env.NODE_ENV === 'development' ? 'https://data.bodegacatsgc.gg' : 'https://data.bodegacatsgc.gg'
+)
+
+// Keep Supabase variables for authentication (if needed)
 export const SUPABASE_URL = getEnvVariable(
   'NEXT_PUBLIC_SUPABASE_URL',
   process.env.NODE_ENV === 'development' ? 'http://localhost:54321' : undefined
@@ -35,6 +42,6 @@ export const SUPABASE_URL = getEnvVariable(
 export const SUPABASE_ANON_KEY = getEnvVariable(
   'NEXT_PUBLIC_SUPABASE_ANON_KEY',
   process.env.NODE_ENV === 'development' 
-    ? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24ifQ.625_WdcF3KHqz5amU0x2X5WoHP05E-zfzgXySgN0V8k' // Default anon key for local Supabase
+    ? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24ifQ.625_WdcF3KHqz5amU0x2X5WoHP05E-zfzgXySgN0V8k'
     : undefined
 )

@@ -1,3 +1,6 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import { AppSidebar } from "@/components/app-sidebar"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { DataTable } from "@/components/data-table"
@@ -7,10 +10,29 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-
-import data from "./data.json"
+import { PlayerPerformance, fetchPlayerPerformance } from "@/lib/api/queries"
 
 export default function Page() {
+  const [players, setPlayers] = useState<PlayerPerformance[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const loadPlayers = async () => {
+      try {
+        const data = await fetchPlayerPerformance(50) // Get top 50 players
+        setPlayers(data)
+      } catch (err) {
+        console.error('Error fetching players:', err)
+        setError('Failed to load player data. Please try again later.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadPlayers()
+  }, [])
+
   return (
     <SidebarProvider
       style={
@@ -30,7 +52,19 @@ export default function Page() {
               <div className="px-4 lg:px-6">
                 <ChartAreaInteractive />
               </div>
-              <DataTable data={data} />
+              {loading ? (
+                <div className="flex justify-center p-8">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+                </div>
+              ) : error ? (
+                <div className="rounded-md bg-destructive/15 p-4 text-destructive">
+                  <p>{error}</p>
+                </div>
+              ) : (
+                <div className="px-4 lg:px-6">
+                  <DataTable data={players} />
+                </div>
+              )}
             </div>
           </div>
         </div>

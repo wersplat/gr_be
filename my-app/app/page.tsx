@@ -7,48 +7,27 @@ import { DataTable } from "@/components/data-table"
 import { SectionCards } from "@/components/section-cards"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { Event, fetchEvents } from "@/lib/supabase/queries"
-
-type TableEvent = {
-  id: number
-  header: string
-  type: string
-  status: string
-  target: string
-  limit: string
-  reviewer: string
-}
-
-// Helper function to convert Event to TableEvent
-const mapEventToTable = (event: Event): TableEvent => ({
-  id: parseInt(event.id, 10) || 0,
-  header: event.name || 'Untitled Event',
-  type: event.type || 'Unknown',
-  status: 'Active', // Default status
-  target: 'All Users', // Default target
-  limit: '100', // Default limit
-  reviewer: 'Admin' // Default reviewer
-})
+import { PlayerPerformance, fetchPlayerPerformance } from "@/lib/api/queries"
 
 export default function Page() {
-  const [events, setEvents] = useState<TableEvent[]>([])
+  const [players, setPlayers] = useState<PlayerPerformance[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const loadEvents = async () => {
+    const loadPlayers = async () => {
       try {
-        const data = await fetchEvents(10)
-        setEvents(data.map(mapEventToTable))
+        const data = await fetchPlayerPerformance(50)
+        setPlayers(data)
       } catch (err) {
-        console.error('Error fetching events:', err)
-        setError('Failed to load events. Please try again later.')
+        console.error('Error fetching players:', err)
+        setError('Failed to load player data. Please try again later.')
       } finally {
         setLoading(false)
       }
     }
 
-    loadEvents()
+    loadPlayers()
   }, [])
 
   return (
@@ -64,10 +43,19 @@ export default function Page() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <div className="px-4 lg:px-6">
+                <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+                <p className="text-muted-foreground">
+                  Welcome to the Bodega Cats GC League Dashboard
+                </p>
+              </div>
+              
               <SectionCards />
+              
               <div className="px-4 lg:px-6">
                 <ChartAreaInteractive />
               </div>
+              
               {loading ? (
                 <div className="flex justify-center p-8">
                   <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
@@ -77,7 +65,9 @@ export default function Page() {
                   <p>{error}</p>
                 </div>
               ) : (
-                <DataTable data={events} />
+                <div className="px-4 lg:px-6">
+                  <DataTable data={players} />
+                </div>
               )}
             </div>
           </div>

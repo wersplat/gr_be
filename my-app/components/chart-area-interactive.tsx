@@ -1,12 +1,11 @@
 "use client"
 
 import * as React from "react"
+import { useEffect, useState } from "react"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 
-import { useIsMobile } from "@/hooks/use-mobile"
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -29,259 +28,250 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@/components/ui/toggle-group"
+import { fetchPlayerPerformance } from "@/lib/api/queries"
 
-export const description = "An interactive area chart"
+export const description = "An interactive area chart showing player performance data"
 
-const chartData = [
-  { date: "2024-04-01", desktop: 222, mobile: 150 },
-  { date: "2024-04-02", desktop: 97, mobile: 180 },
-  { date: "2024-04-03", desktop: 167, mobile: 120 },
-  { date: "2024-04-04", desktop: 242, mobile: 260 },
-  { date: "2024-04-05", desktop: 373, mobile: 290 },
-  { date: "2024-04-06", desktop: 301, mobile: 340 },
-  { date: "2024-04-07", desktop: 245, mobile: 180 },
-  { date: "2024-04-08", desktop: 409, mobile: 320 },
-  { date: "2024-04-09", desktop: 59, mobile: 110 },
-  { date: "2024-04-10", desktop: 261, mobile: 190 },
-  { date: "2024-04-11", desktop: 327, mobile: 350 },
-  { date: "2024-04-12", desktop: 292, mobile: 210 },
-  { date: "2024-04-13", desktop: 342, mobile: 380 },
-  { date: "2024-04-14", desktop: 137, mobile: 220 },
-  { date: "2024-04-15", desktop: 120, mobile: 170 },
-  { date: "2024-04-16", desktop: 138, mobile: 190 },
-  { date: "2024-04-17", desktop: 446, mobile: 360 },
-  { date: "2024-04-18", desktop: 364, mobile: 410 },
-  { date: "2024-04-19", desktop: 243, mobile: 180 },
-  { date: "2024-04-20", desktop: 89, mobile: 150 },
-  { date: "2024-04-21", desktop: 137, mobile: 200 },
-  { date: "2024-04-22", desktop: 224, mobile: 170 },
-  { date: "2024-04-23", desktop: 138, mobile: 230 },
-  { date: "2024-04-24", desktop: 387, mobile: 290 },
-  { date: "2024-04-25", desktop: 215, mobile: 250 },
-  { date: "2024-04-26", desktop: 75, mobile: 130 },
-  { date: "2024-04-27", desktop: 383, mobile: 420 },
-  { date: "2024-04-28", desktop: 122, mobile: 180 },
-  { date: "2024-04-29", desktop: 315, mobile: 240 },
-  { date: "2024-04-30", desktop: 454, mobile: 380 },
-  { date: "2024-05-01", desktop: 165, mobile: 220 },
-  { date: "2024-05-02", desktop: 293, mobile: 310 },
-  { date: "2024-05-03", desktop: 247, mobile: 190 },
-  { date: "2024-05-04", desktop: 385, mobile: 420 },
-  { date: "2024-05-05", desktop: 481, mobile: 390 },
-  { date: "2024-05-06", desktop: 498, mobile: 520 },
-  { date: "2024-05-07", desktop: 388, mobile: 300 },
-  { date: "2024-05-08", desktop: 149, mobile: 210 },
-  { date: "2024-05-09", desktop: 227, mobile: 180 },
-  { date: "2024-05-10", desktop: 293, mobile: 330 },
-  { date: "2024-05-11", desktop: 335, mobile: 270 },
-  { date: "2024-05-12", desktop: 197, mobile: 240 },
-  { date: "2024-05-13", desktop: 197, mobile: 160 },
-  { date: "2024-05-14", desktop: 448, mobile: 490 },
-  { date: "2024-05-15", desktop: 473, mobile: 380 },
-  { date: "2024-05-16", desktop: 338, mobile: 400 },
-  { date: "2024-05-17", desktop: 499, mobile: 420 },
-  { date: "2024-05-18", desktop: 315, mobile: 350 },
-  { date: "2024-05-19", desktop: 235, mobile: 180 },
-  { date: "2024-05-20", desktop: 177, mobile: 230 },
-  { date: "2024-05-21", desktop: 82, mobile: 140 },
-  { date: "2024-05-22", desktop: 81, mobile: 120 },
-  { date: "2024-05-23", desktop: 252, mobile: 290 },
-  { date: "2024-05-24", desktop: 294, mobile: 220 },
-  { date: "2024-05-25", desktop: 201, mobile: 250 },
-  { date: "2024-05-26", desktop: 213, mobile: 170 },
-  { date: "2024-05-27", desktop: 420, mobile: 460 },
-  { date: "2024-05-28", desktop: 233, mobile: 190 },
-  { date: "2024-05-29", desktop: 78, mobile: 130 },
-  { date: "2024-05-30", desktop: 340, mobile: 280 },
-  { date: "2024-05-31", desktop: 178, mobile: 230 },
-  { date: "2024-06-01", desktop: 178, mobile: 200 },
-  { date: "2024-06-02", desktop: 470, mobile: 410 },
-  { date: "2024-06-03", desktop: 103, mobile: 160 },
-  { date: "2024-06-04", desktop: 439, mobile: 380 },
-  { date: "2024-06-05", desktop: 88, mobile: 140 },
-  { date: "2024-06-06", desktop: 294, mobile: 250 },
-  { date: "2024-06-07", desktop: 323, mobile: 370 },
-  { date: "2024-06-08", desktop: 385, mobile: 320 },
-  { date: "2024-06-09", desktop: 438, mobile: 480 },
-  { date: "2024-06-10", desktop: 155, mobile: 200 },
-  { date: "2024-06-11", desktop: 92, mobile: 150 },
-  { date: "2024-06-12", desktop: 492, mobile: 420 },
-  { date: "2024-06-13", desktop: 81, mobile: 130 },
-  { date: "2024-06-14", desktop: 426, mobile: 380 },
-  { date: "2024-06-15", desktop: 307, mobile: 350 },
-  { date: "2024-06-16", desktop: 371, mobile: 310 },
-  { date: "2024-06-17", desktop: 475, mobile: 520 },
-  { date: "2024-06-18", desktop: 107, mobile: 170 },
-  { date: "2024-06-19", desktop: 341, mobile: 290 },
-  { date: "2024-06-20", desktop: 408, mobile: 450 },
-  { date: "2024-06-21", desktop: 169, mobile: 210 },
-  { date: "2024-06-22", desktop: 317, mobile: 270 },
-  { date: "2024-06-23", desktop: 480, mobile: 530 },
-  { date: "2024-06-24", desktop: 132, mobile: 180 },
-  { date: "2024-06-25", desktop: 141, mobile: 190 },
-  { date: "2024-06-26", desktop: 434, mobile: 380 },
-  { date: "2024-06-27", desktop: 448, mobile: 490 },
-  { date: "2024-06-28", desktop: 149, mobile: 200 },
-  { date: "2024-06-29", desktop: 103, mobile: 160 },
-  { date: "2024-06-30", desktop: 446, mobile: 400 },
-]
+// Helper function to convert string to number safely
+const parseNumber = (value: string | number | null | undefined): number => {
+  if (typeof value === 'number') return value
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value)
+    return isNaN(parsed) ? 0 : parsed
+  }
+  return 0
+}
 
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  desktop: {
-    label: "Desktop",
-    color: "var(--primary)",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "var(--primary)",
-  },
-} satisfies ChartConfig
+// Type for chart data
+interface ChartDataItem {
+  rank: number
+  player: string
+  points: number
+  assists: number
+  rebounds: number
+  steals: number
+  blocks: number
+  performance: number
+  rankScore: number
+}
 
 export function ChartAreaInteractive() {
-  const isMobile = useIsMobile()
-  const [timeRange, setTimeRange] = React.useState("90d")
+  const [chartData, setChartData] = useState<ChartDataItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedMetric, setSelectedMetric] = useState("avg_points")
+  const [selectedPeriod, setSelectedPeriod] = useState("all")
 
-  React.useEffect(() => {
-    if (isMobile) {
-      setTimeRange("7d")
-    }
-  }, [isMobile])
+  useEffect(() => {
+    const loadChartData = async () => {
+      try {
+        const performanceData = await fetchPlayerPerformance(20) // Get top 20 players
+        
+        // Transform data for chart
+        const transformedData = performanceData
+          .sort((a, b) => {
+            const aValue = parseNumber(a[selectedMetric as keyof typeof a])
+            const bValue = parseNumber(b[selectedMetric as keyof typeof b])
+            return bValue - aValue
+          })
+          .slice(0, 10) // Top 10 players
+          .map((player, index) => ({
+            rank: index + 1,
+            player: player.gamertag,
+            points: parseNumber(player.avg_points),
+            assists: parseNumber(player.avg_assists),
+            rebounds: parseNumber(player.avg_rebounds),
+            steals: parseNumber(player.avg_steals),
+            blocks: parseNumber(player.avg_blocks),
+            performance: parseNumber(player.avg_performance_score),
+            rankScore: parseNumber(player.player_rank_score),
+          }))
 
-  const filteredData = chartData.filter((item) => {
-    const date = new Date(item.date)
-    const referenceDate = new Date("2024-06-30")
-    let daysToSubtract = 90
-    if (timeRange === "30d") {
-      daysToSubtract = 30
-    } else if (timeRange === "7d") {
-      daysToSubtract = 7
+        setChartData(transformedData)
+      } catch (error) {
+        console.error('Error loading chart data:', error)
+        // Fallback to sample data if API fails
+        setChartData([
+          { rank: 1, player: "Player 1", points: 25, assists: 8, rebounds: 10, steals: 2, blocks: 1, performance: 85, rankScore: 456 },
+          { rank: 2, player: "Player 2", points: 22, assists: 10, rebounds: 8, steals: 3, blocks: 2, performance: 82, rankScore: 248 },
+          { rank: 3, player: "Player 3", points: 20, assists: 6, rebounds: 12, steals: 1, blocks: 3, performance: 78, rankScore: 211 },
+          { rank: 4, player: "Player 4", points: 18, assists: 9, rebounds: 7, steals: 2, blocks: 1, performance: 75, rankScore: 422 },
+          { rank: 5, player: "Player 5", points: 16, assists: 7, rebounds: 9, steals: 1, blocks: 2, performance: 72, rankScore: 332 },
+        ])
+      } finally {
+        setLoading(false)
+      }
     }
-    const startDate = new Date(referenceDate)
-    startDate.setDate(startDate.getDate() - daysToSubtract)
-    return date >= startDate
-  })
+
+    loadChartData()
+  }, [selectedMetric, selectedPeriod])
+
+  const metricLabels = {
+    avg_points: "Points",
+    avg_assists: "Assists", 
+    avg_rebounds: "Rebounds",
+    avg_steals: "Steals",
+    avg_blocks: "Blocks",
+    avg_performance_score: "Performance",
+    player_rank_score: "Rank Score"
+  }
+
+  const getMetricValue = (data: ChartDataItem) => {
+    switch (selectedMetric) {
+      case "avg_points": return data.points
+      case "avg_assists": return data.assists
+      case "avg_rebounds": return data.rebounds
+      case "avg_steals": return data.steals
+      case "avg_blocks": return data.blocks
+      case "avg_performance_score": return data.performance
+      case "player_rank_score": return data.rankScore
+      default: return data.points
+    }
+  }
+
+  const chartConfig = {
+    performance: {
+      label: "Performance",
+      color: "hsl(var(--chart-1))",
+    },
+  } satisfies ChartConfig
+
+  if (loading) {
+    return (
+      <Card className="col-span-4">
+        <CardHeader>
+          <CardTitle>Player Performance</CardTitle>
+          <CardDescription>Loading performance data...</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px] flex items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
-    <Card className="@container/card">
+    <Card className="col-span-4">
       <CardHeader>
-        <CardTitle>Total Visitors</CardTitle>
-        <CardDescription>
-          <span className="hidden @[540px]/card:block">
-            Total for the last 3 months
-          </span>
-          <span className="@[540px]/card:hidden">Last 3 months</span>
-        </CardDescription>
-        <CardAction>
-          <ToggleGroup
-            type="single"
-            value={timeRange}
-            onValueChange={setTimeRange}
-            variant="outline"
-            className="hidden *:data-[slot=toggle-group-item]:!px-4 @[767px]/card:flex"
-          >
-            <ToggleGroupItem value="90d">Last 3 months</ToggleGroupItem>
-            <ToggleGroupItem value="30d">Last 30 days</ToggleGroupItem>
-            <ToggleGroupItem value="7d">Last 7 days</ToggleGroupItem>
-          </ToggleGroup>
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger
-              className="flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate @[767px]/card:hidden"
-              size="sm"
-              aria-label="Select a value"
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <CardTitle>Player Performance</CardTitle>
+            <CardDescription>
+              Top 10 players by {metricLabels[selectedMetric as keyof typeof metricLabels]}
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-2">
+            <Select value={selectedMetric} onValueChange={setSelectedMetric}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select metric" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="avg_points">Points</SelectItem>
+                <SelectItem value="avg_assists">Assists</SelectItem>
+                <SelectItem value="avg_rebounds">Rebounds</SelectItem>
+                <SelectItem value="avg_steals">Steals</SelectItem>
+                <SelectItem value="avg_blocks">Blocks</SelectItem>
+                <SelectItem value="avg_performance_score">Performance</SelectItem>
+                <SelectItem value="player_rank_score">Rank Score</SelectItem>
+              </SelectContent>
+            </Select>
+            <ToggleGroup
+              type="single"
+              value={selectedPeriod}
+              onValueChange={setSelectedPeriod}
+              className="grid w-full grid-cols-3"
             >
-              <SelectValue placeholder="Last 3 months" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="90d" className="rounded-lg">
-                Last 3 months
-              </SelectItem>
-              <SelectItem value="30d" className="rounded-lg">
-                Last 30 days
-              </SelectItem>
-              <SelectItem value="7d" className="rounded-lg">
-                Last 7 days
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </CardAction>
+              <ToggleGroupItem value="week" aria-label="Toggle week">
+                Week
+              </ToggleGroupItem>
+              <ToggleGroupItem value="month" aria-label="Toggle month">
+                Month
+              </ToggleGroupItem>
+              <ToggleGroupItem value="all" aria-label="Toggle all">
+                All
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
-        >
-          <AreaChart data={filteredData}>
+      <CardContent>
+        <ChartContainer config={chartConfig}>
+          <AreaChart
+            data={chartData}
+            margin={{
+              top: 5,
+              right: 10,
+              left: 10,
+              bottom: 0,
+            }}
+          >
             <defs>
-              <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-desktop)"
-                  stopOpacity={1.0}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-desktop)"
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-              <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-mobile)"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-mobile)"
-                  stopOpacity={0.1}
-                />
+              <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity={0.5} />
+                <stop offset="100%" stopColor="hsl(var(--chart-1))" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              horizontal
+              vertical={false}
+              className="stroke-muted"
+            />
             <XAxis
-              dataKey="date"
+              dataKey="player"
               tickLine={false}
               axisLine={false}
-              tickMargin={8}
-              minTickGap={32}
-              tickFormatter={(value) => {
-                const date = new Date(value)
-                return date.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                })
+              tick={{
+                fontSize: 12,
+                fontWeight: 500,
               }}
+              tickMargin={10}
             />
             <ChartTooltip
-              cursor={false}
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                    })
-                  }}
-                  indicator="dot"
-                />
-              }
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <ChartTooltipContent>
+                      <div className="grid gap-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="font-medium">
+                              {payload[0].payload.player}
+                            </div>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Rank #{payload[0].payload.rank}
+                          </div>
+                        </div>
+                        <div className="text-sm">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-muted-foreground">
+                              {metricLabels[selectedMetric as keyof typeof metricLabels]}:
+                            </span>
+                            <span className="font-medium tabular-nums">
+                              {getMetricValue(payload[0].payload).toFixed(1)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </ChartTooltipContent>
+                  )
+                }
+                return null
+              }}
             />
             <Area
-              dataKey="mobile"
-              type="natural"
-              fill="url(#fillMobile)"
-              stroke="var(--color-mobile)"
-              stackId="a"
-            />
-            <Area
-              dataKey="desktop"
-              type="natural"
-              fill="url(#fillDesktop)"
-              stroke="var(--color-desktop)"
-              stackId="a"
+              dataKey={selectedMetric === "avg_points" ? "points" : 
+                       selectedMetric === "avg_assists" ? "assists" :
+                       selectedMetric === "avg_rebounds" ? "rebounds" :
+                       selectedMetric === "avg_steals" ? "steals" :
+                       selectedMetric === "avg_blocks" ? "blocks" : 
+                       selectedMetric === "player_rank_score" ? "rankScore" : "performance"}
+              fill="url(#gradient)"
+              className="fill-primary"
+              strokeWidth={2}
+              type="monotone"
             />
           </AreaChart>
         </ChartContainer>
